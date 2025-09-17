@@ -1,0 +1,410 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tony B KE NET Boosting -- HARKER</title>
+<style>
+  :root{
+    --bg:#000;
+    --neon:#00ff66;
+    --accent:#00ffd4;
+    --panel:#07110b;
+    --muted: rgba(160,255,200,0.06);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--neon);font-family:"Courier New",monospace;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:var(--neon);text-decoration:none}
+  button{font-family:inherit;cursor:pointer}
+
+  /* Matrix background canvas */
+  #matrix{position:fixed;inset:0;z-index:0;opacity:0.18;mix-blend-mode:screen}
+  .scanlines{position:fixed;inset:0;z-index:3;pointer-events:none;background-image:linear-gradient(rgba(0,0,0,0.02) 1px, transparent 1px);background-size:100% 3px;opacity:0.06}
+  .noise{position:fixed;inset:0;z-index:7;pointer-events:none;opacity:0.03;mix-blend-mode:overlay}
+
+  /* page container (stacked) */
+  .page{position:relative;z-index:2;max-width:980px;margin:18px auto;padding:18px;display:flex;flex-direction:column;gap:16px}
+
+  /* header */
+  .header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#001300,#003200);display:flex;align-items:center;justify-content:center;border:2px solid rgba(0,255,120,0.08)}
+  .logo span{font-weight:900;color:#bfffcf}
+  .title{font-size:30px;letter-spacing:4px;color:var(--neon);text-transform:uppercase;transform:skewX(-6deg);position:relative}
+  .subtitle{font-size:12px;color:#bfffcf;opacity:0.85}
+
+  .controls{display:flex;gap:8px;align-items:center}
+  .search{padding:8px;border-radius:8px;border:1px solid rgba(0,255,120,0.06);background:transparent;color:var(--neon);min-width:200px}
+
+  .pill{padding:8px 12px;border-radius:8px;border:1px solid rgba(0,255,120,0.06);background:linear-gradient(0deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));font-size:13px}
+
+  /* panels */
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.02));padding:14px;border-radius:12px;border:1px solid rgba(0,255,120,0.04);box-shadow:0 30px 80px rgba(0,0,0,0.7)}
+  .card{background:var(--panel);padding:14px;border-radius:10px;border:1px solid rgba(0,255,120,0.04)}
+  .muted{color:#bfffcf;opacity:0.85;font-size:13px}
+  h1{margin:0}
+  h2{margin:0 0 8px 0;color:var(--neon)}
+
+  /* form */
+  .form-control{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(0,255,120,0.06);background:transparent;color:var(--neon);margin-top:8px}
+  label{display:block;margin-top:10px;color:#bfffcf;font-size:13px}
+
+  /* buttons */
+  .btn{padding:10px 14px;border-radius:8px;border:2px solid var(--neon);background:transparent;color:var(--neon);font-weight:700;cursor:pointer}
+  .btn:hover{background:var(--neon);color:#000;box-shadow:0 18px 60px rgba(0,255,120,0.12)}
+  .btn.ghost{border-style:dashed;opacity:0.92}
+  .primary{background:var(--neon);color:#000}
+
+  .price{font-size:18px;font-weight:800;color:var(--neon);margin-top:8px}
+
+  .notice{background:#111;padding:12px;border-left:4px solid var(--neon);border-radius:8px;color:var(--neon);box-shadow:0 0 12px rgba(0,255,120,0.04);text-align:left}
+
+  /* countdown circle */
+  .countdown-wrapper{margin:20px 0;position:relative;display:flex;flex-direction:column;align-items:center;gap:12px}
+  .circle{width:180px;height:180px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:var(--neon);text-shadow:0 0 12px var(--neon);border:8px solid rgba(0,255,120,0.06);box-shadow:0 0 30px rgba(0,255,120,0.02)}
+  .group-link{font-size:14px}
+
+  /* terminal */
+  .terminal{background:#001200;padding:12px;border-radius:8px;color:var(--neon);font-size:13px;border:1px solid rgba(0,255,120,0.03);max-height:220px;overflow:auto}
+
+  /* modal */
+  .modal-back{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:80}
+  .modal{background:#06130b;border-radius:10px;padding:16px;border:1px solid rgba(0,255,120,0.06);max-width:820px;width:94%;color:var(--neon)}
+  .close{float:right;background:transparent;border:0;color:var(--neon);font-size:20px}
+
+  footer{padding:12px;text-align:center;border-top:1px solid rgba(0,255,120,0.04);font-size:13px;color:#bfffcf}
+
+  @media(max-width:760px){ .title{font-size:20px} .logo{width:48px;height:48px} }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="scanlines"></div>
+<div class="noise"></div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="logo"><span>DA</span></div>
+      <div>
+        <div class="title"Tony B Anon KE NET Boosting</div>
+        <div class="subtitle">HARKER Boost Panel -- Professional • Demo UI</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <input id="globalSearch" class="search" placeholder="Search (press /)" title="Press / to focus">
+      <div class="pill" id="status">● ONLINE</div>
+      <div class="pill" id="uptime">00:00:00</div>
+      <button class="pill" id="exportBtn">EXPORT</button>
+    </div>
+  </div>
+
+  <!-- NOTICE (replaced contact with your number) -->
+  <div class="panel">
+    <div class="notice">
+      <p><strong>Payment & Contact</strong></p>
+      <p>Contact / Payment follow-up via WhatsApp operator: <strong>0718840626</strong></p>
+      <p class="muted">After placing an order we will confirm delivery and payment instructions via WhatsApp.</p>
+    </div>
+  </div>
+
+  <!-- terminal -->
+  <div class="panel">
+    <div class="terminal" id="terminal">
+      &gt; Boost panel loaded -- HARKER mode enabled.<br>
+      &gt; Live price engine active.<br>
+      <div id="termFeed"></div>
+    </div>
+  </div>
+
+  <!-- countdown + group link -->
+  <div class="panel">
+    <div class="countdown-wrapper">
+      <div class="circle" id="countdown">0d 0h 0m 0s</div>
+      <div class="group-link">👉 After order <a href="https://chat.whatsapp.com/CjoDXOsAQVc9dRytsvPNEA?mode=ac_t" target="_blank">join our WhatsApp group</a></div>
+    </div>
+  </div>
+
+  <!-- main order card -->
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <h2>Boosting Console</h2>
+        <div class="muted">Select platform, service and quantity. Preview before buying. Orders are delivered automatically where supported.</div>
+      </div>
+      <div class="badge">HARKER MODE</div>
+    </div>
+
+    <div style="height:12px"></div>
+
+    <div class="row" style="gap:16px">
+      <div class="col card">
+        <label>Platform</label>
+        <select id="platform" class="form-control">
+          <option value="TikTok">TikTok</option>
+          <option value="Instagram">Instagram</option>
+          <option value="Facebook">Facebook</option>
+          <option value="YouTube">YouTube</option>
+          <option value="X">Twitter / X</option>
+        </select>
+
+        <label>Service</label>
+        <select id="service" class="form-control">
+          <option value="Followers">Followers</option>
+          <option value="Likes">Likes</option>
+          <option value="Views">Views</option>
+          <option value="Subscribers">Subscribers</option>
+        </select>
+
+        <label>Quantity</label>
+        <input id="quantity" type="number" class="form-control" placeholder="Enter quantity">
+
+        <label>Post / Account Link</label>
+        <input id="link" type="text" class="form-control" placeholder="Enter your post or account link">
+
+        <div class="price" id="price">KSh 0</div>
+
+        <div class="actions" style="margin-top:12px">
+          <button class="btn primary" id="buyBtn">Buy via WhatsApp</button>
+          <button class="btn ghost" id="previewBtn">Preview</button>
+          <button class="btn ghost" id="requestBtn">Request</button>
+          <button class="btn ghost" id="docsBtn">Docs</button>
+        </div>
+      </div>
+
+      <div class="col card">
+        <h3>Quick Controls & Tools</h3>
+        <p class="muted">Simulated automatic delivery • Demo downloads • Snapshot export</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+          <button class="btn ghost" id="downloadDemo">Download Demo</button>
+          <button class="btn ghost" id="snapshotBtn">Export Snapshot</button>
+          <button class="btn ghost" id="panicBtn">!! PANIC</button>
+        </div>
+
+        <div style="margin-top:12px">
+          <h3 style="margin:6px 0">How pricing works</h3>
+          <p class="muted">Unit prices depend on platform & service and are market-based. Preview shows exact charge. We also teach boosting techniques (training available).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- footer -->
+  <footer class="panel">
+    <div style="font-weight:700">© 2025 Dark Anon KE NET -- HARKER Boost Panel (Demo)</div>
+    <div class="muted" style="margin-top:6px">Operator WhatsApp: <strong>0718840626</strong> • No illegal instructions provided.</div>
+  </footer>
+</div>
+
+<!-- MODAL -->
+<div class="modal-back" id="modalBack">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="close" id="closeModal">&times;</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+/* ===== Matrix background ===== */
+const canvas = document.getElementById('matrix');
+const ctx = canvas.getContext('2d');
+let w = canvas.width = innerWidth, h = canvas.height = innerHeight;
+const fontSize = 14;
+let cols = Math.floor(w / fontSize);
+let drops = Array(cols).fill(0).map(()=>Math.floor(Math.random()*h/fontSize));
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*+-=';
+function resizeCanvas(){ w = canvas.width = innerWidth; h = canvas.height = innerHeight; cols = Math.floor(w/fontSize); drops = Array(cols).fill(0).map(()=>Math.floor(Math.random()*h/fontSize)); }
+window.addEventListener('resize', resizeCanvas);
+function drawMatrix(){
+  ctx.fillStyle='rgba(0,0,0,0.08)'; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle='rgba(0,255,120,0.6)'; ctx.font=fontSize+'px monospace';
+  for(let i=0;i<cols;i++){
+    const x = i*fontSize;
+    const txt = chars.charAt(Math.floor(Math.random()*chars.length));
+    ctx.fillText(txt, x, drops[i]*fontSize);
+    if(drops[i]*fontSize > h && Math.random() > 0.975) drops[i]=0;
+    drops[i]++;
+  }
+  requestAnimationFrame(drawMatrix);
+}
+drawMatrix();
+
+/* ===== Uptime ===== */
+const upEl = document.getElementById('uptime');
+const start = Date.now();
+function pad(n){ return n<10? '0'+n : n }
+setInterval(()=>{ const s = Math.floor((Date.now()-start)/1000); upEl.textContent = pad(Math.floor(s/3600))+':'+pad(Math.floor((s%3600)/60))+':'+pad(s%60); }, 1000);
+
+/* ===== Countdown to 25th of month (keeps original behavior) ===== */
+const countdownEl = document.getElementById('countdown');
+function getDeadline(){
+  const now = new Date();
+  let year = now.getFullYear(), month = now.getMonth(), day = 25;
+  if(now.getDate() > 25){ month += 1; if(month>11){ month=0; year+=1;} }
+  return new Date(year, month, day, 23,59,59).getTime();
+}
+const deadline = getDeadline();
+function updateCountdown(){
+  const now = Date.now();
+  const dist = deadline - now;
+  if(dist < 0){ countdownEl.textContent = 'EXPIRED'; return; }
+  const days = Math.floor(dist/(1000*60*60*24));
+  const hours = Math.floor((dist % (1000*60*60*24)) / (1000*60*60));
+  const minutes = Math.floor((dist % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((dist % (1000*60)) / 1000);
+  countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+updateCountdown(); setInterval(updateCountdown, 1000);
+
+/* ===== Terminal fillers ===== */
+const termFeed = document.getElementById('termFeed');
+const seed = ['> init modules...','> pricing engine online','> monitoring active'];
+let si = 0;
+function feedTerm(){ if(si < seed.length){ const d = document.createElement('div'); d.textContent = seed[si++]; termFeed.appendChild(d); document.getElementById('terminal').scrollTop = 9999; setTimeout(feedTerm, 700 + Math.random()*500); } }
+setTimeout(feedTerm, 800);
+
+/* ===== Pricing table (unit prices per platform/service) =====
+  These are demo rates -- adjust as you wish.
+*/
+const PRICE_TABLE = {
+  TikTok: { Followers: 0.4, Likes: 0.35, Views: 0.10, Subscribers: 0.5 },
+  Instagram: { Followers: 0.4, Likes: 0.35, Views: 0.12, Subscribers: 0.6 },
+  Facebook: { Followers: 0.5, Likes: 0.4, Views: 0.15, Subscribers: 0.7 },
+  YouTube: { Views: 0.08, Subscribers: 0.7, Likes: 0.45 },
+  X: { Followers: 0.45, Likes: 0.35, Views: 0.09 }
+};
+
+const platformEl = document.getElementById('platform');
+const serviceEl = document.getElementById('service');
+const qtyEl = document.getElementById('quantity');
+const linkEl = document.getElementById('link');
+const priceEl = document.getElementById('price');
+
+function ksh(n){ return 'KSh ' + Number(n).toLocaleString('en-KE', {maximumFractionDigits:0}); }
+
+function calcPrice(){
+  const plat = platformEl.value;
+  const srv = serviceEl.value;
+  const qty = Math.max(0, Number(qtyEl.value || 0));
+  const unit = (PRICE_TABLE[plat] && PRICE_TABLE[plat][srv]) ? PRICE_TABLE[plat][srv] : 0;
+  const total = Math.round(unit * qty);
+  priceEl.textContent = ksh(total);
+  return total;
+}
+qtyEl.addEventListener('input', calcPrice);
+platformEl.addEventListener('change', calcPrice);
+serviceEl.addEventListener('change', calcPrice);
+
+/* ===== Modal helpers ===== */
+const modalBack = document.getElementById('modalBack');
+const modalContent = document.getElementById('modalContent');
+document.getElementById('closeModal').addEventListener('click', closeModal);
+modalBack.addEventListener('click', (e)=>{ if(e.target === modalBack) closeModal(); });
+function openModal(html){ modalContent.innerHTML = html; modalBack.style.display = 'flex'; }
+function closeModal(){ modalBack.style.display = 'none'; modalContent.innerHTML = ''; }
+
+/* ===== Preview, Request, Docs ===== */
+document.getElementById('previewBtn').addEventListener('click', ()=>{
+  const plat = platformEl.value;
+  const srv = serviceEl.value;
+  const qty = Number(qtyEl.value || 0);
+  const link = linkEl.value || '[not provided]';
+  const total = calcPrice();
+  openModal(`<h2>Order Preview</h2>
+    <p>Platform: <strong>${escapeHtml(plat)}</strong></p>
+    <p>Service: <strong>${escapeHtml(srv)}</strong></p>
+    <p>Quantity: <strong>${qty}</strong></p>
+    <p>Post/Account: <strong>${escapeHtml(link)}</strong></p>
+    <p>Total Charge: <strong>${ksh(total)}</strong></p>
+    <div style="margin-top:12px"><button class="btn" id="closePreview">Close</button></div>`);
+  setTimeout(()=> document.getElementById('closePreview').addEventListener('click', closeModal),40);
+});
+
+document.getElementById('requestBtn').addEventListener('click', ()=>{
+  openModal(`<h2>Request Assistance</h2>
+    <p>Send your contact and request -- operator will respond via WhatsApp.</p>
+    <form id="reqForm">
+      <label class="muted">Contact</label>
+      <input name="contact" class="form-control" placeholder="+2547... or email">
+      <label class="muted">Message</label>
+      <textarea name="msg" class="form-control" rows="3" placeholder="Your message"></textarea>
+      <div style="margin-top:10px"><button class="btn" type="submit">Send Request</button></div>
+    </form>`);
+  setTimeout(()=> {
+    const f = document.getElementById('reqForm');
+    f.addEventListener('submit',(e)=>{ e.preventDefault(); const c = f.elements.contact.value||'[not provided]'; closeModal(); writeTerminal(`Request submitted (demo) -- ${c}`); openModal(`<h2>Request Sent</h2><p>We received your request. Operator will contact: <strong>${escapeHtml(c)}</strong></p>`); });
+  },40);
+});
+
+document.getElementById('docsBtn').addEventListener('click', ()=>{
+  openModal(`<h2>Docs -- Boosting (Demo)</h2>
+    <p class="muted">This interface demonstrates ordering and preview flows. No illegal instructions or automation code is provided.</p>
+    <pre style="background:#001200;padding:10px;border-radius:8px;border:1px solid rgba(0,255,120,0.04)">Example: After purchase, deliveries are processed; operator will confirm via WhatsApp.\nNo real automation on this demo page.</pre>`);
+});
+
+/* ===== Buy via WhatsApp (uses your contact) ===== */
+const operator = '254718840626'; // +254718840626 (your number)
+document.getElementById('buyBtn').addEventListener('click', ()=>{
+  const plat = platformEl.value;
+  const srv = serviceEl.value;
+  const qty = Number(qtyEl.value || 0);
+  const link = linkEl.value || '[not provided]';
+  const total = calcPrice();
+  if(!qty || !link){ alert('Please enter quantity and post/account link.'); return; }
+  const msg = `Hello TonyB, I have an order.%0APlatform: ${encodeURIComponent(plat)}%0AService: ${encodeURIComponent(srv)}%0AQuantity: ${qty}%0APost/Account: ${encodeURIComponent(link)}%0ATotal: ${encodeURIComponent(ksh(total))}%0AContact: [please add your contact here]`;
+  writeTerminal('Opening WhatsApp (demo) to place order...');
+  window.open(`https://wa.me/${operator}?text=${msg}`, '_blank');
+});
+
+/* ===== Demo download / snapshot / panic ===== */
+document.getElementById('downloadDemo').addEventListener('click', ()=>{
+  const txt = '### demo-boost-config\\nThis is a demo file. No real automation included.';
+  const blob = new Blob([txt], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'boost-demo.txt'; a.click(); URL.revokeObjectURL(url);
+  writeTerminal('Demo file prepared for download (UI).');
+});
+
+document.getElementById('snapshotBtn').addEventListener('click', ()=>{
+  const html = '<!doctype html>\\n' + document.documentElement.outerHTML;
+  const blob = new Blob([html],{type:'text/html'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'social_boost_snapshot.html'; a.click(); URL.revokeObjectURL(url);
+  writeTerminal('Snapshot exported (UI).');
+});
+
+document.getElementById('panicBtn').addEventListener('click', ()=>{
+  document.body.style.filter = 'invert(0.12) hue-rotate(120deg) saturate(1.6)';
+  writeTerminal('⚠ PANIC invoked (demo).');
+  setTimeout(()=> document.body.style.filter = '', 3000);
+});
+
+/* ===== Terminal helper ===== */
+function writeTerminal(s){ const d = document.createElement('div'); d.textContent = '> ' + s; termFeed.appendChild(d); document.getElementById('terminal').scrollTop = 9999; }
+
+/* ===== Keyboard shortcuts ===== */
+const gSearch = document.getElementById('globalSearch');
+window.addEventListener('keydown',(e)=>{
+  if(e.key === '/'){ e.preventDefault(); gSearch.focus(); }
+  if(e.key.toLowerCase() === 'p'){ e.preventDefault(); document.getElementById('panicBtn').click(); }
+  if(e.key.toLowerCase() === 'o'){ window.location.href = 'index.html'; }
+});
+
+/* ===== Copy-protection fun ===== */
+document.addEventListener('copy',(e)=>{ e.clipboardData.setData('text/plain','DA-REDACT-'+Math.random().toString(36).slice(2,8)); e.preventDefault(); });
+
+/* ===== small util: escape html ===== */
+function escapeHtml(s){ return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+/* ===== Initial small heartbeat for terminal ===== */
+setInterval(()=>{ const arr=['> heartbeat ok','> feed tick','> monitoring active']; const el=document.createElement('div'); el.textContent = arr[Math.floor(Math.random()*arr.length)]; termFeed.appendChild(el); document.getElementById('terminal').scrollTop = 9999; }, 4200);
+
+/* ===== initial price calc safety ===== */
+calcPrice();
+</script>
+</body>
+</html>

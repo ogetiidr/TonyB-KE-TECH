@@ -1,0 +1,210 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tony B Anon Modded Apps</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    background: black;
+    color: #0f0;
+    overflow-x: hidden;
+    text-align: center;
+  }
+
+  /* Matrix moving background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: url('https://i.ibb.co/XSrWJ7v/matrix-bg.jpg') repeat;
+    opacity: 0.15;
+    z-index: -1;
+    animation: bgMove 30s linear infinite;
+  }
+  @keyframes bgMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 1000px 1000px; }
+  }
+
+  h1 {
+    font-size: 38px;
+    color: #0f0;
+    text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
+    margin-top: 20px;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+  }
+
+  .card {
+    background: #111;
+    border: 1px solid #0f0;
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    box-shadow: 0 0 20px #0f0;
+    text-align: left;
+    animation: glow 2s infinite alternate;
+  }
+
+  @keyframes glow {
+    0% { box-shadow: 0 0 10px #0f0; }
+    100% { box-shadow: 0 0 25px #0f0; }
+  }
+
+  .form-control {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #0f0;
+    background: #000;
+    color: #0f0;
+    margin-bottom: 10px;
+  }
+
+  button {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: black;
+    background: #0f0;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 0 10px #0f0;
+    animation: pulse 2s infinite;
+  }
+
+  button:hover {
+    background: #0f8;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 10px #0f0, 0 0 20px #0f0; }
+    50% { box-shadow: 0 0 20px #0f0, 0 0 40px #0f0; }
+  }
+
+  .notice {
+    background: #111;
+    padding: 15px;
+    border-left: 5px solid #0f0;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    color: #0f0;
+    text-align: left;
+    box-shadow: 0 0 15px #0f0;
+  }
+
+  .countdown-wrapper { margin: 30px 0; }
+  .circle {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    border: 10px solid transparent;
+    border-top: 10px solid red;
+    border-right: 10px solid orange;
+    border-bottom: 10px solid yellow;
+    border-left: 10px solid lime;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: auto;
+    font-size: 22px;
+    font-weight: bold;
+    color: #0f0;
+    text-shadow: 0 0 15px #0f0;
+    animation: spin 3s linear infinite, glow 2s infinite alternate;
+  }
+  @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>🚀 Tony B Modded Apps</h1>
+
+  <div class="notice">
+    <p><b>Order any modded app you want!</b></p>
+    <p>Learn how to mod apps yourself with our exclusive classes.</p>
+    <p>Payment instructions: M-Pesa to <b>0718840626</b></p>
+    <p>✅ Delivery happens after payment. All services are automatic.</p>
+  </div>
+
+  <div class="countdown-wrapper">
+    <div class="circle" id="countdown">0d 0h 0m 0s</div>
+  </div>
+
+  <!-- Order Modded App -->
+  <div class="card">
+    <h2>💾 Order Modded App</h2>
+    <p>Enter the app you want:</p>
+    <input type="text" id="modapp" class="form-control" placeholder="Type the app name you want">
+    <p><b>Price:</b> KSh 100</p>
+    <button onclick="orderModApp()">Order App</button>
+  </div>
+
+  <!-- Request Classes -->
+  <div class="card">
+    <h2>📚 Learn How To Mod Apps</h2>
+    <p>We teach everything about app modding:</p>
+    <ul>
+      <li>APK Rebuilding</li>
+      <li>Premium Unlocking</li>
+      <li>Security Bypass</li>
+      <li>Automation & Bot Integration</li>
+    </ul>
+    <button onclick="requestClass()">Request Class</button>
+  </div>
+
+</div>
+
+<script>
+function orderModApp() {
+  const app = document.getElementById("modapp").value.trim();
+  if(!app){
+    alert("Please type the app name you want!");
+    return;
+  }
+  const message = `Hi Dark Anon, I want to order the modded app: ${app}\n\n✅ Payment of KSh 100 will be sent to M-Pesa 0718840626`;
+  const whatsappURL = `https://wa.me/254718840626?text=${encodeURIComponent(message)}`;
+  window.open(whatsappURL, "_blank");
+}
+
+function requestClass() {
+  const message = `Hi Dark Anon, I want to request the app modding classes. Please guide me.`;
+  const whatsappURL = `https://wa.me/254718840626?text=${encodeURIComponent(message)}`;
+  window.open(whatsappURL, "_blank");
+}
+
+// Countdown to 25th of current month
+const countdownElement = document.getElementById("countdown");
+function getDeadline() {
+  const now = new Date();
+  let year = now.getFullYear(), month = now.getMonth(), day = 25;
+  if (now.getDate() > 25) { month += 1; if(month>11){month=0;year+=1;} }
+  return new Date(year, month, day, 23, 59, 59).getTime();
+}
+const deadline = getDeadline();
+function updateCountdown() {
+  const now = new Date().getTime();
+  const distance = deadline - now;
+  if(distance < 0){ countdownElement.textContent = "EXPIRED"; return; }
+  const days = Math.floor(distance/(1000*60*60*24));
+  const hours = Math.floor((distance % (1000*60*60*24)) / (1000*60*60));
+  const minutes = Math.floor((distance % (1000*60*60)) / (1000*60));
+  const seconds = Math.floor((distance % (1000*60)) / 1000);
+  countdownElement.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+}
+updateCountdown();
+setInterval(updateCountdown, 1000);
+</script>
+</body>
+</html>
